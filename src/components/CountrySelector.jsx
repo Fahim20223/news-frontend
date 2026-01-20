@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+// List of supported countries with their flags
 const countries = [
   { code: "us", name: "United States", flag: "🇺🇸" },
   { code: "gb", name: "United Kingdom", flag: "🇬🇧" },
@@ -18,14 +19,16 @@ const countries = [
 ];
 
 const CountrySelector = ({ selectedCountry, onCountryChange }) => {
-  const [viewMode, setViewMode] = useState("dropdown"); //dropdown
+  const [viewMode, setViewMode] = useState("dropdown"); // Default to dropdown view
 
+  // Find the currently selected country data
   const selectedCountryData = countries.find((c) => c.code === selectedCountry);
 
   return (
     <div className="mb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h2 className="text-2xl font-semibold">Select Country</h2>
+        <h2 className="text-2xl font-semibold">Choose Your Country</h2>
+        {/* Toggle between dropdown and card view */}
         <div className="tabs tabs-boxed">
           <button
             className={`tab ${viewMode === "dropdown" ? "tab-active" : ""}`}
@@ -43,6 +46,7 @@ const CountrySelector = ({ selectedCountry, onCountryChange }) => {
       </div>
 
       {viewMode === "dropdown" ? (
+        // Dropdown selector view
         <div className="form-control w-full max-w-xs">
           <select
             className="select select-bordered w-full"
@@ -57,6 +61,7 @@ const CountrySelector = ({ selectedCountry, onCountryChange }) => {
           </select>
         </div>
       ) : (
+        // Card grid view
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3">
           {countries.map((country) => (
             <button

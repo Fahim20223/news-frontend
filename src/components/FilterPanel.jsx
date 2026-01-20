@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
+// Available news categories
 const categories = [
   { value: '', label: 'All Categories' },
   { value: 'business', label: 'Business' },
@@ -11,6 +12,7 @@ const categories = [
   { value: 'technology', label: 'Technology' }
 ];
 
+// Supported languages
 const languages = [
   { value: 'en', label: 'English' },
   { value: 'es', label: 'Spanish' },
@@ -26,22 +28,26 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
   const [localFilters, setLocalFilters] = useState(filters);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Sync local state with props when they change
   useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
 
+  // Handle individual filter changes
   const handleFilterChange = (key, value) => {
     const newFilters = { ...localFilters, [key]: value };
     setLocalFilters(newFilters);
     onFiltersChange(newFilters);
   };
 
+  // Apply all current filters
   const handleApply = () => {
     onApplyFilters(localFilters);
   };
 
+  // Reset all filters to defaults
   const handleReset = () => {
-    const resetFilters = {
+    const defaultFilters = {
       country: 'us',
       category: '',
       language: 'en',
@@ -50,11 +56,12 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
       to: '',
       q: ''
     };
-    setLocalFilters(resetFilters);
-    onFiltersChange(resetFilters);
-    onApplyFilters(resetFilters);
+    setLocalFilters(defaultFilters);
+    onFiltersChange(defaultFilters);
+    onApplyFilters(defaultFilters);
   };
 
+  // Convert date to input format
   const formatDateForInput = (date) => {
     if (!date) return '';
     return new Date(date).toISOString().split('T')[0];
@@ -63,7 +70,7 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
   return (
     <div className="bg-base-100 rounded-lg shadow-md p-4 mb-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Filters</h3>
+        <h3 className="text-lg font-semibold">Filter Options</h3>
         <button
           className="btn btn-ghost btn-sm"
           onClick={() => setIsExpanded(!isExpanded)}
@@ -74,14 +81,14 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
 
       {isExpanded && (
         <div className="space-y-4">
-          {/* Search Query */}
+          {/* Search input field */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Search Keywords</span>
             </label>
             <input
               type="text"
-              placeholder="Enter keywords..."
+              placeholder="Enter keywords to search for..."
               className="input input-bordered w-full"
               value={localFilters.q || ''}
               onChange={(e) => handleFilterChange('q', e.target.value)}
@@ -89,7 +96,7 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Category Filter */}
+            {/* Category dropdown */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Category</span>
@@ -107,7 +114,7 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
               </select>
             </div>
 
-            {/* Language Filter */}
+            {/* Language selection */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Language</span>
@@ -125,10 +132,10 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
               </select>
             </div>
 
-            {/* Sources Filter */}
+            {/* News source selection */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Source</span>
+                <span className="label-text">News Source</span>
               </label>
               <select
                 className="select select-bordered w-full"
@@ -145,7 +152,7 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
             </div>
           </div>
 
-          {/* Date Range */}
+          {/* Date range picker */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="form-control">
               <label className="label">
@@ -171,7 +178,7 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Control buttons */}
           <div className="flex gap-2 pt-4">
             <button
               className="btn btn-primary"
@@ -183,7 +190,7 @@ const FilterPanel = ({ filters, onFiltersChange, onApplyFilters, sources = [] })
               className="btn btn-outline"
               onClick={handleReset}
             >
-              Reset
+              Reset All
             </button>
           </div>
         </div>

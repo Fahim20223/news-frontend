@@ -4,9 +4,11 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import NewsCard from "./components/NewsCard";
 import FilterPanel from "./components/FilterPanel";
 
+// Backend API endpoint
 const API_BASE_URL = "http://localhost:5000/api";
 
 function App() {
+  // State management
   const [selectedCountry, setSelectedCountry] = useState("us");
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,6 +16,7 @@ function App() {
   const [sources, setSources] = useState([]);
   const [totalResults, setTotalResults] = useState(0);
   
+  // Filter state with sensible defaults
   const [filters, setFilters] = useState({
     country: "us",
     category: "",
@@ -24,7 +27,7 @@ function App() {
     q: ""
   });
 
-  // Fetch available sources
+  // Load available news sources for the selected country
   const fetchSources = async (country, language = 'en') => {
     try {
       const response = await fetch(
@@ -35,17 +38,17 @@ function App() {
         setSources(data.sources || []);
       }
     } catch (error) {
-      console.error("Error fetching sources:", error);
+      console.error("Failed to load sources:", error);
     }
   };
 
-  // Fetch news with filters
+  // Main function to fetch news articles
   const fetchNews = async (filterParams) => {
     setLoading(true);
     setError(null);
 
     try {
-      // Build query string
+      // Create query string from filter parameters
       const queryParams = new URLSearchParams();
       Object.entries(filterParams).forEach(([key, value]) => {
         if (value && value !== '') {
@@ -56,6 +59,7 @@ function App() {
       const response = await fetch(`${API_BASE_URL}/news?${queryParams}`);
       const data = await response.json();
 
+      // Handle API errors
       if (data.error) {
         throw new Error(data.message || data.error);
       }
@@ -65,35 +69,37 @@ function App() {
     } catch (error) {
       setError(error.message);
       setNews([]);
-      console.error("Error fetching news:", error);
+      console.error("News fetch failed:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle country change
+  // Handle country selection changes
   const handleCountryChange = (countryCode) => {
     setSelectedCountry(countryCode);
-    const newFilters = { ...filters, country: countryCode };
-    setFilters(newFilters);
-    fetchNews(newFilters);
+    const updatedFilters = { ...filters, country: countryCode };
+    setFilters(updatedFilters);
+    fetchNews(updatedFilters);
+    // Also update sources for the new country
     fetchSources(countryCode, filters.language);
   };
 
-  // Handle filter changes
+  // Update filters without applying them immediately
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
   };
 
-  // Apply filters
+  // Apply the current filters and fetch news
   const handleApplyFilters = (appliedFilters) => {
     fetchNews(appliedFilters);
+    // Update sources if country changed
     if (appliedFilters.country !== filters.country) {
       fetchSources(appliedFilters.country, appliedFilters.language);
     }
   };
 
-  // Initial load
+  // Load initial data when component mounts
   useEffect(() => {
     fetchNews(filters);
     fetchSources(filters.country, filters.language);
@@ -102,22 +108,23 @@ function App() {
   return (
     <div className="min-h-screen bg-base-200 p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Page header */}
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary mb-2">
             Global News Hub
           </h1>
           <p className="text-lg text-base-content/70">
-            Stay Updated with headlines from around the world
+            Stay updated with the latest headlines from around the world
           </p>
         </header>
 
-        {/* Country Selector */}
+        {/* Country selection component */}
         <CountrySelector
           selectedCountry={selectedCountry}
           onCountryChange={handleCountryChange}
         />
 
-        {/* Filter Panel */}
+        {/* News filtering options */}
         <FilterPanel
           filters={filters}
           onFiltersChange={handleFiltersChange}
@@ -125,18 +132,18 @@ function App() {
           sources={sources}
         />
 
-        {/* Results Summary */}
+        {/* Show results count when not loading */}
         {!loading && !error && (
           <div className="mb-4 text-sm text-base-content/70">
             {totalResults > 0 ? (
               <span>Found {totalResults.toLocaleString()} articles</span>
             ) : (
-              <span>No articles found</span>
+              <span>No articles found with current filters</span>
             )}
           </div>
         )}
 
-        {/* Error Display */}
+        {/* Error message display */}
         {error && (
           <div className="alert alert-error mb-6">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,25 +153,25 @@ function App() {
           </div>
         )}
 
-        {/* Loading State */}
+        {/* Main content area */}
         {loading ? (
           <LoadingSpinner />
         ) : (
           <>
-            {/* News Grid */}
+            {/* News articles grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {news.map((article, index) => (
                 <NewsCard key={`${article.url}-${index}`} article={article} />
               ))}
             </div>
 
-            {/* Empty State */}
+            {/* Show message when no articles found */}
             {!loading && news.length === 0 && !error && (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">📰</div>
                 <h3 className="text-xl font-semibold mb-2">No News Articles Found</h3>
                 <p className="text-base-content/70">
-                  Try adjusting your filters or selecting a different country
+                  Try adjusting your filters or selecting a different country to see more results
                 </p>
               </div>
             )}
